@@ -32,7 +32,7 @@ class Equation
      * Parses a mathematical equation and returns the result.
      *
      * @param string $equation The equation to parse in infix notation.
-     * @return array The result of the parsed equation in postfix (RPN) notation.
+     * @return string[] The result of the parsed equation in postfix (RPN) notation.
      * @throws \Exception on malformed equation, division by zero, or missing variables.
      */
     static public function parse($equation)
@@ -43,9 +43,9 @@ class Equation
 
     /**
      * Solves a mathematical equation, optionally using provided variables.
-     * @param string|array $equation The equation to solve, either as a string in infix notation or an array in postfix notation.
-     * @param array $variables An associative array of variables to use in the equation, where keys are variable names and values are their corresponding values.
-     * @return double The result of the solved equation.
+     * @param string|string[] $equation The equation to solve, either as a string in infix notation or an array in postfix notation.
+     * @param (int|double)[] $variables An associative array of variables to use in the equation, where keys are variable names and values are their corresponding values.
+     * @return int|double The result of the solved equation.
      * @throws \Exception
      */
     static public function solve($equation, $variables = [])

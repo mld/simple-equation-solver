@@ -21,7 +21,7 @@ class Parser
      * @link http://en.wikipedia.org/wiki/Reverse_Polish_notation Reverse Polish Notation
      * @param string $infix A standard notation equation
      * @throws \Exception on parsing and matching errors
-     * @return array Fully formed RPN Stack
+     * @return string[] Fully formed RPN Stack
      */
     public static function infix2postfix($infix)
     {
@@ -45,6 +45,9 @@ class Parser
 
         // convert infix from matches[0] to a postfix array
         foreach ($matches[0] as $token) {
+            if (trim($token) === '') {
+                continue; // Skip empty tokens
+            }
             if (
                 preg_match(self::NUMERIC_PATTERN, $token) // numeric
                 ||
@@ -77,12 +80,29 @@ class Parser
             $postfix[] = array_pop($stack);
         }
 
+        // remove any null values from the postfix array
+        $postfix = array_filter($postfix, function ($value) {
+            return $value !== null;
+        });
+
         return $postfix;
     }
 
+    /**
+     * Insert Implicit Multiplication
+     *
+     * Inserts implicit multiplication operators where necessary in the infix expression.
+     *
+     * This function adds a multiplication operator between numbers and variables, or between
+     * variables and parentheses, to ensure that the expression is correctly interpreted.
+     *
+     * @param string $infix The infix expression to process
+     * @return string The modified infix expression with implicit multiplications added
+     * @throws \Exception if the regex replacement fails
+     */
     private static function insertImplicitMultiplication($infix)
     {
-        return preg_replace(
+        $infix = preg_replace(
             [
                 '/(\d)([a-zA-Z(])/',
                 '/([a-zA-Z])(\d|\()/',
@@ -91,6 +111,11 @@ class Parser
             '$1*$2',
             $infix
         );
+
+        if ($infix === null) {
+            throw new \Exception('Malformed equation: ' . $infix, Equation::ERROR_INVALID_EQUATION);
+        }
+        return $infix;
     }
 
     /**
@@ -144,15 +169,22 @@ class Parser
      * @param string $infix A standard notation equation
      * @param bool $keepWhitespace Whether to keep whitespace in the equation
      * @return string The cleaned-up equation
+     * @throws \Exception if the cleaned-up equation is malformed
      */
     public static function cleanInfix($infix, $keepWhitespace = false)
     {
-        // If we want to keep whitespace, we will only remove unsupported characters
         if ($keepWhitespace) {
-            return preg_replace('|[' . self::VALID_PATTERN . '\s]|', '', $infix);
+            // If we want to keep whitespace, we will only remove unsupported characters
+            $infix = preg_replace('|[' . self::VALID_PATTERN . '\s]|', '', $infix);
+        } else {
+            // Otherwise, remove all unsupported characters, including whitespace
+            $infix = preg_replace('|[' . self::VALID_PATTERN . ']|', '', $infix);
         }
 
-        // Otherwise, remove all unsupported characters, including whitespace
-        return preg_replace('|[' . self::VALID_PATTERN . ']|', '', $infix);
+        if ($infix === null) {
+            throw new \Exception('Malformed equation: ' . $infix, Equation::ERROR_INVALID_EQUATION);
+        }
+
+        return $infix;
     }
 }

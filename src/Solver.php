@@ -10,10 +10,10 @@ class Solver
      * This function will solve a RPN array
      *
      * @link http://en.wikipedia.org/wiki/Reverse_Polish_notation Postix Notation
-     * @param array $equation RPN formatted array.
-     * @param array|null $variables Variables to be used in the equation.
+     * @param string[] $equation RPN formatted array.
+     * @param (int|double)[] $variables Variables to be used in the equation.
      * @throws \Exception on division by 0
-     * @return double Result of the operation.
+     * @return double|int Result of the operation.
      */
     public static function postfix($equation, $variables = [])
     {
@@ -39,11 +39,11 @@ class Solver
 
                 if (is_numeric($pf[$i])) {
                     // if pf[$i] is numeric, just add it to the temp array
-                    $temp[$hold++] = $pf[$i];
-                } elseif (ctype_alpha($pf[$i]) && isset($variables[$pf[$i]])) {
+                    $temp[$hold++] = (double)$pf[$i];
+                } elseif (isset($variables[$pf[$i]])) {
                     // if pf[$i] is a string and only contains alpha characters, check if it exists in the variables array and replace it with its value
                     $pf[$i] = $variables[$pf[$i]];
-                    $temp[$hold++] = $pf[$i];
+                    $temp[$hold++] = (double)$pf[$i];
                 } else {
                     // throw an exception if pf[$i] is neither numeric nor a valid variable
                     throw new \Exception(
@@ -55,16 +55,16 @@ class Solver
             else {
                 switch ($pf[$i]) {
                     case '+':
-                        $temp[$hold - 2] += $temp[$hold - 1];
+                        (double)$temp[$hold - 2] += (double)$temp[$hold - 1];
                         break;
                     case '-':
-                        $temp[$hold - 2] -= $temp[$hold - 1];
+                        (double)$temp[$hold - 2] -= (double)$temp[$hold - 1];
                         break;
                     case '*':
-                        $temp[$hold - 2] *= $temp[$hold - 1];
+                        (double)$temp[$hold - 2] *= (double)$temp[$hold - 1];
                         break;
                     case '/':
-                        if ($temp[$hold - 1] == 0) {
+                        if ((double)$temp[$hold - 1] == 0.0) {
                             // todo: throw DivisionByZeroException when dropping PHP 5.6 support
                             throw new \Exception(
                                 sprintf(
@@ -76,7 +76,7 @@ class Solver
                                 Equation::ERROR_DIVISION_BY_ZERO);
                         }
 
-                        $temp[$hold - 2] /= $temp[$hold - 1];
+                        (double)$temp[$hold - 2] /= (double)$temp[$hold - 1];
                         break;
                     case '%':
                         if ($temp[$hold - 1] == 0) {
@@ -91,7 +91,7 @@ class Solver
                                 Equation::ERROR_DIVISION_BY_ZERO);
                         }
 
-                        $temp[$hold - 2] = bcmod($temp[$hold - 2], $temp[$hold - 1]);
+                        $temp[$hold - 2] = (double)bcmod((string)$temp[$hold - 2], (string)$temp[$hold - 1]);
                         break;
                 }
 
