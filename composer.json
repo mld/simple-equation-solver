@@ -1,0 +1,52 @@
+{
+  "name": "mld/simple-equation-solver",
+  "description": "Parse and solve simple math equations without using 'eval()'. Heavily inspired by the 'jlawrence/eos' library by Jon Lawrence.",
+  "type": "library",
+  "version": "0.0.1",
+  "license": "LGPL-2.1-or-later",
+  "keywords": [
+    "equations",
+    "math",
+    "solve"
+  ],
+  "authors": [
+    {
+      "name": "Micke Löfstrand",
+      "email": "mikaelld@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "MLD\\SimpleEquationSolver\\": "src/",
+      "Tests\\": "tests/"
+    }
+  },
+  "require": {
+    "php": "^5.6 || ^7.4 || ^8.4",
+    "ext-json": "*",
+    "ext-bcmath": "*"
+  },
+  "require-dev": {
+    "pestphp/pest": "^3.8",
+    "rector/rector": "^2.1"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "scripts": {
+    "test": [
+      "pest"
+    ],
+    "rector": [
+      "rector process src --dry-run"
+    ],
+    "rector:fix": [
+      "rector process src"
+    ],
+    "phpstan": [
+        "phpstan analyse src --level max"
+    ]
+  }
+}

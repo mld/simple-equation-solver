@@ -1,0 +1,111 @@
+<?php
+
+namespace MLD\SimpleEquationSolver;
+
+class Solver
+{
+    /**
+     * Solve Postfix (RPN)
+     *
+     * This function will solve a RPN array
+     *
+     * @link http://en.wikipedia.org/wiki/Reverse_Polish_notation Postix Notation
+     * @param array $equation RPN formatted array.
+     * @param array|null $variables Variables to be used in the equation.
+     * @throws \Exception on division by 0
+     * @return double Result of the operation.
+     */
+    public static function postfix($equation, $variables = [])
+    {
+        $pf = array_values($equation);
+
+        // create our temporary function variables
+        $temp = [];
+        $hold = 0;
+
+        // Loop through each number/operator
+        $counter = count($pf);
+
+        // Loop through each number/operator
+        for ($i = 0; $i < $counter; $i++) {
+            // If pf[$i] isn't an operator, add it to the temp var as a holding place
+            if (!in_array($pf[$i], [
+                Equation::MULTIPLICATION,
+                Equation::DIVISION,
+                Equation::MODULO,
+                Equation::ADDITION,
+                Equation::SUBTRACTION
+            ], true)) {
+
+                if (is_numeric($pf[$i])) {
+                    // if pf[$i] is numeric, just add it to the temp array
+                    $temp[$hold++] = $pf[$i];
+                } elseif (ctype_alpha($pf[$i]) && isset($variables[$pf[$i]])) {
+                    // if pf[$i] is a string and only contains alpha characters, check if it exists in the variables array and replace it with its value
+                    $pf[$i] = $variables[$pf[$i]];
+                    $temp[$hold++] = $pf[$i];
+                } else {
+                    // throw an exception if pf[$i] is neither numeric nor a valid variable
+                    throw new \Exception(
+                        sprintf("Variable '%s' not found in variables array.", $pf[$i]),
+                        Equation::ERROR_VARIABLES_MISSING
+                    );
+                }
+            } // ...Otherwise perform the operator on the last two numbers
+            else {
+                switch ($pf[$i]) {
+                    case '+':
+                        $temp[$hold - 2] += $temp[$hold - 1];
+                        break;
+                    case '-':
+                        $temp[$hold - 2] -= $temp[$hold - 1];
+                        break;
+                    case '*':
+                        $temp[$hold - 2] *= $temp[$hold - 1];
+                        break;
+                    case '/':
+                        if ($temp[$hold - 1] == 0) {
+                            // todo: throw DivisionByZeroException when dropping PHP 5.6 support
+                            throw new \Exception(
+                                sprintf(
+                                    "Division by 0 on: '%s / %s' in %s",
+                                    $temp[$hold - 2],
+                                    $temp[$hold - 1],
+                                    var_export($equation, true)
+                                ),
+                                Equation::ERROR_DIVISION_BY_ZERO);
+                        }
+
+                        $temp[$hold - 2] /= $temp[$hold - 1];
+                        break;
+                    case '%':
+                        if ($temp[$hold - 1] == 0) {
+                            // todo: throw DivisionByZeroException when dropping PHP 5.6 support
+                            throw new \Exception(
+                                sprintf(
+                                    "Division by 0 on: '%s %% %s' in %s",
+                                    $temp[$hold - 2],
+                                    $temp[$hold - 1],
+                                    var_export($equation, true)
+                                ),
+                                Equation::ERROR_DIVISION_BY_ZERO);
+                        }
+
+                        $temp[$hold - 2] = bcmod($temp[$hold - 2], $temp[$hold - 1]);
+                        break;
+                }
+
+                // Decrease the hold var to one above where the last number is
+                $hold -= 1;
+            }
+        }
+
+        if(!isset($temp[$hold - 1])) {
+            // If we don't have a result, throw an exception
+            throw new \Exception('No result found in equation', Equation::ERROR_INVALID_EQUATION);
+        }
+
+        // return the last number in the array
+        return $temp[$hold - 1];
+    }
+}
