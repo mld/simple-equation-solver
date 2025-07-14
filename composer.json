@@ -12,7 +12,7 @@
   "authors": [
     {
       "name": "Micke Löfstrand",
-      "email": "mikaelld@gmail.com"
+      "homepage": "https://github.com/mld"
     }
   ],
   "autoload": {
@@ -21,10 +21,9 @@
       "Tests\\": "tests/"
     }
   },
+  "minimum-stability": "stable",
   "require": {
-    "php": "^5.6 || ^7.4 || ^8.4",
-    "ext-json": "*",
-    "ext-bcmath": "*"
+    "php": "^5.6 || ^7.4 || ^8.4"
   },
   "require-dev": {
     "pestphp/pest": "^3.8",
