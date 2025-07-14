@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use Rector\CodeQuality\Rector\Assign\CombinedAssignRector;
 use Rector\CodingStyle\Rector\FuncCall\StrictArraySearchRector;
 use Rector\Config\RectorConfig;
+use Rector\DeadCode\Rector\Cast\RecastingRemovalRector;
 use Rector\Set\ValueObject\SetList;
 
 return RectorConfig::configure()
@@ -17,4 +19,12 @@ return RectorConfig::configure()
     ->withDeadCodeLevel(100)
     ->withCodeQualityLevel(100)
     ->withSets([SetList::CODING_STYLE])
-    ->withSkip([StrictArraySearchRector::class]);
+    ->withSkip([StrictArraySearchRector::class])
+    ->withSkip([
+        CombinedAssignRector::class => [
+            __DIR__ . '/src/Solver.php',
+        ],
+        RecastingRemovalRector::class => [
+            __DIR__ . '/src/Solver.php',
+        ],
+    ]);;

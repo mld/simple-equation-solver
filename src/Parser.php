@@ -4,7 +4,9 @@ namespace MLD\SimpleEquationSolver;
 
 class Parser
 {
-    const VALID_PATTERN = '^0-9+\-*/%().a-zA-Z_';
+    const VALID_PATTERN = '/[^0-9+\-*\/%().a-zA-Z_\s]/';
+
+    const VALID_PATTERN_ALLOW_WHITESPACE = '/[^0-9+\-*\/%().a-zA-Z_]/';
 
     const TOKEN_PATTERN = '/\d+|\d+.\d+|[a-zA-Z]{1}\w*|[+\-*\/%]|[()]/';
 
@@ -48,6 +50,7 @@ class Parser
             if (trim($token) === '') {
                 continue; // Skip empty tokens
             }
+
             if (
                 preg_match(self::NUMERIC_PATTERN, $token) // numeric
                 ||
@@ -115,6 +118,7 @@ class Parser
         if ($infix === null) {
             throw new \Exception('Malformed equation: ' . $infix, Equation::ERROR_INVALID_EQUATION);
         }
+
         return $infix;
     }
 
@@ -175,10 +179,10 @@ class Parser
     {
         if ($keepWhitespace) {
             // If we want to keep whitespace, we will only remove unsupported characters
-            $infix = preg_replace('|[' . self::VALID_PATTERN . '\s]|', '', $infix);
+            $infix = preg_replace(self::VALID_PATTERN, '', $infix);
         } else {
             // Otherwise, remove all unsupported characters, including whitespace
-            $infix = preg_replace('|[' . self::VALID_PATTERN . ']|', '', $infix);
+            $infix = preg_replace(self::VALID_PATTERN_ALLOW_WHITESPACE, '', $infix);
         }
 
         if ($infix === null) {
