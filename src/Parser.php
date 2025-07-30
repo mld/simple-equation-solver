@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace MLD\SimpleEquationSolver;
 
@@ -84,9 +85,7 @@ class Parser
         }
 
         // remove any null values from the postfix array
-        $postfix = array_filter($postfix, function ($value) {
-            return $value !== null;
-        });
+        $postfix = array_filter($postfix, fn($value) => $value !== null);
 
         return $postfix;
     }
@@ -139,7 +138,7 @@ class Parser
             Equation::DIVISION => 2,
             Equation::MODULO => 2,
         ];
-        return isset($precedence[$operator]) ? $precedence[$operator] : 0;
+        return $precedence[$operator] ?? 0;
     }
 
     /**
