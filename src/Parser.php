@@ -83,11 +83,6 @@ class Parser
             $postfix[] = array_pop($stack);
         }
 
-        // remove any null values from the postfix array
-        $postfix = array_filter($postfix, function ($value) {
-            return $value !== null;
-        });
-
         return $postfix;
     }
 
